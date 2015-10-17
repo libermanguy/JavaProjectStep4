@@ -2,37 +2,30 @@
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Observable;
 import algorithms.mazeGenerators.*;
 import algorithms.search.*;
-import controller.Controller;
 import general.Position;
 import general.Solution;
-import general.State;
 import io.*;
 
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class MyModel.
  */
-public class MyModel implements Model {
+public class MyModel extends Observable implements Model {
 
 	/** The _mazes. */
 	HashMap<String,SearchableMaze> _mazes;
 	
 	/** The _solutions. */
 	HashMap<String,Solution<Position>> _solutions;
-	
-	/** The controller. */
-	Controller controller;
-	
+
 	/** The openfiles. */
 	int openfiles;
 	
@@ -61,19 +54,11 @@ public class MyModel implements Model {
 			public void run() {
 				openthreads++;
 				_mazes.put(name,new SearchableMaze(new MyMaze3dGenerator().generate(x, y, z)));
-				controller.PleaseTellView("your glorious " + name + " is ready sire !");
+				setChanged();
+				notifyObservers("Display,1,1," + name);
 				openthreads--;
 			    }
 			  }).start();		
-	}
-
-	/**
-	 * Sets the controller.
-	 *
-	 * @param controller the new controller
-	 */
-	public void setController(Controller controller) {
-		this.controller = controller;
 	}
 
 	/* (non-Javadoc)
@@ -116,7 +101,8 @@ public class MyModel implements Model {
 		out.flush();
 		out.close();	
 		openfiles--;
-		controller.PleaseTellView("Maze saved successfully");
+		setChanged();
+		notifyObservers("Display,3,1,"+ name);
 	}
 
 	/* (non-Javadoc)
@@ -140,7 +126,8 @@ public class MyModel implements Model {
 			for ( int i = 0 ; i < buff.size() ; i ++ )
 				fileData[i] = buff.get(i).byteValue();
 			_mazes.put(name, new SearchableMaze(new Maze3d(fileData)));
-			controller.PleaseTellView("Maze loaded successfully");
+			setChanged();
+			notifyObservers("Display,4,1,"+ name);
 	
 
 	}
@@ -185,12 +172,15 @@ public class MyModel implements Model {
 				try
 				{
 			_solutions.put(name, searcher.search(_mazes.get(name)));
-			controller.PleaseTellView("sire, i have unraveled your " + name + " punishment !");
+			setChanged();
+			// first int = action , second int status
+			notifyObservers("Display,2,1," + name);
 			openthreads--;
 				}
 				catch (Exception e)
 				{
-					controller.PleaseTellView("Failed solving " + name + " punishment, probably not ready yet or doesn`t exist!");
+					setChanged();
+					notifyObservers("Display,2,2," + name);
 					openthreads--;
 				}
 			  }}).start();		
@@ -215,12 +205,14 @@ public class MyModel implements Model {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				setChanged();
+				notifyObservers("Display,Error closing Model");
 			}
-			controller.PleaseTellView("there are " + openfiles + " open files and " + openthreads + " open threads");
+			setChanged();
+			notifyObservers("Display,open files," + openfiles + ",open threads," + openthreads);
 		}
-		controller.PleaseTellView("Model Closed");
+		notifyObservers("Display,Finish closing Model");
 	}
+
 
 }

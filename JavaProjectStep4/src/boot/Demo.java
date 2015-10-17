@@ -1,6 +1,6 @@
 package boot;
 
-import controller.MyController;
+import presenter.Presenter;
 import model.MyModel;
 import view.MyView;
 
@@ -19,7 +19,9 @@ public class Demo {
 	public static void main(String[] args) {
 		MyView myview=new MyView();
 		MyModel mymodel=new MyModel();
-		MyController mycontroller = new MyController(myview,mymodel);
+		Presenter presenter=new Presenter(mymodel, myview);
+		myview.addObserver(presenter);
+		mymodel.addObserver(presenter);
 		myview.startCLI();
 	}
 

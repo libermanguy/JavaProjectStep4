@@ -93,5 +93,6 @@ public interface Model {
 	/**
 	 * Exit.
 	 */
+	
 	public void exit();
 }

@@ -1,5 +1,7 @@
 package view;
 
+import java.util.HashMap;
+
 import general.Position;
 import general.Solution;
 import general.State;
@@ -65,5 +67,8 @@ public interface View {
 	 * @param arg the arg
 	 */
 	public void displayStr(String arg);
+
+	public void setCLI(HashMap<String, Integer> commands);
+
 	
 }
