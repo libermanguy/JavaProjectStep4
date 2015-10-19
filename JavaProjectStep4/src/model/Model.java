@@ -1,8 +1,4 @@
 	package model;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import general.Position;
 import general.Solution;
 
@@ -27,8 +23,9 @@ public interface Model {
 	 *
 	 * @param name the name
 	 * @return the object[]
+	 * @throws Exception 
 	 */
-	public Object[] display(String name);
+	public Object[] display(String name) throws Exception;
 	
 	/**
 	 * Gets the cross section.
@@ -37,8 +34,9 @@ public interface Model {
 	 * @param dim the dim
 	 * @param index the index
 	 * @return the cross section
+	 * @throws Exception 
 	 */
-	public Object getCrossSection(String name,char dim,int index);
+	public Object getCrossSection(String name,char dim,int index) throws Exception;
 	
 	/**
 	 * Save.
@@ -63,8 +61,9 @@ public interface Model {
 	 *
 	 * @param name the name
 	 * @return the int
+	 * @throws Exception 
 	 */
-	public int mazeSize(String name);
+	public int mazeSize(String name) throws Exception;
 	
 	/**
 	 * File size.
@@ -87,8 +86,9 @@ public interface Model {
 	 *
 	 * @param name the name
 	 * @return the solution
+	 * @throws Exception 
 	 */
-	public Solution<Position> displaySolution(String name);
+	public Solution<Position> displaySolution(String name) throws Exception;
 	
 	/**
 	 * Exit.

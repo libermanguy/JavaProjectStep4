@@ -1,14 +1,21 @@
 package general;
 
+import java.io.Serializable;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class State.
  *
  * @param <T> the generic type
  */
-public class State<T> implements Comparable<State<T>>{
+public class State<T> implements Comparable<State<T>>,Serializable{
     
-    /** The state. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/** The state. */
     private T state;    // the state represented by a string
     
     /** The cost. */

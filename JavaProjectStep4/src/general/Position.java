@@ -1,8 +1,14 @@
 package general;
 
-public class Position
+import java.io.Serializable;
+
+public class Position implements Serializable
 {
-//3 Dimension
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	//3 Dimension
 	int _x,_y,_z;
 
 /**
@@ -13,7 +19,7 @@ public class Position
  * @param z the z
  */
 //Constructors 
-public Position(int x, int y, int z) 
+public Position(int x, int y, int z)  
 	{
 		this._x = x;
 		this._y = y;

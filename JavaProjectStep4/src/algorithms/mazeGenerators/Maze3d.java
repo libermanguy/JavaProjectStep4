@@ -1,6 +1,7 @@
 package algorithms.mazeGenerators;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import general.Position;
@@ -9,9 +10,14 @@ import general.Position;
 /**
  * The Class Maze3d.
  */
-public class Maze3d 
+public class Maze3d implements Serializable
 {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/** The _maze3d. */
 	int[][][] _maze3d;
 	
@@ -413,5 +419,19 @@ public class Maze3d
 		{
 			return false;
 		}
+	}
+	
+	public int hashCode() 
+	{
+		int x=0;
+		for (int[][] dim : _maze3d) 
+			for (int[] arr : dim) 
+				for (int cell : arr) 
+				{
+					if (cell == 1)
+						x++;
+				}
+		int hash = this._start.hashCode()*100+this._end.hashCode()*10+x;
+	    return hash;
 	}
 }

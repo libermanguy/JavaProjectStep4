@@ -1,13 +1,28 @@
  package model;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Observable;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 import algorithms.mazeGenerators.*;
 import algorithms.search.*;
 import general.Position;
@@ -21,24 +36,39 @@ import io.*;
 public class MyModel extends Observable implements Model {
 
 	/** The _mazes. */
-	HashMap<String,SearchableMaze> _mazes;
+	HashMap<String,Future<SearchableMaze>> _mazes;
 	
 	/** The _solutions. */
-	HashMap<String,Solution<Position>> _solutions;
+	HashMap<String,Future<Solution<Position>>> _solutions;
 
+	HashMap<Maze3d, Solution<Position>> _solutionscache;
+	
 	/** The openfiles. */
 	int openfiles;
 	
 	/** The openthreads. */
 	int openthreads;
 	
+	ExecutorService executer;
+	
 	/**
 	 * Instantiates a new my model.
 	 */
 	public MyModel() {
 		super();
-		this._mazes = new HashMap<String,SearchableMaze>();
-		this._solutions = new HashMap<String,Solution<Position>>();
+		this._mazes = new HashMap<String,Future<SearchableMaze>>();
+		this._solutions = new HashMap<String,Future<Solution<Position>>>();
+		try{
+			loadCache("c:\\temp\\cache.zip");
+			}
+catch (Exception e) {
+			System.out.println("error cache load");
+		}
+		
+		
+		
+		
+		executer = Executors.newFixedThreadPool(20); // change later
 		openfiles=0;
 		openthreads=0;
 	}
@@ -49,44 +79,70 @@ public class MyModel extends Observable implements Model {
 	@Override
 	public void generate(String name, int x, int y, int z) 
 	{
-		new Thread(new Runnable() {
+		/*new Thread(new Runnable() {
 			@Override
-			public void run() {
+			public void run() {*/
 				openthreads++;
-				_mazes.put(name,new SearchableMaze(new MyMaze3dGenerator().generate(x, y, z)));
+				_mazes.put(name, executer.submit(new Callable<SearchableMaze>() {
+					@Override
+					public SearchableMaze call() throws Exception {
+						Maze3d maz = new MyMaze3dGenerator().generate(x, y, z);
+						return new SearchableMaze(maz);
+					}
+				}));
 				setChanged();
 				notifyObservers("Display,1,1," + name);
 				openthreads--;
-			    }
-			  }).start();		
+			/*    }
+			  }).start();		*/
+				
+				
 	}
 
 	/* (non-Javadoc)
 	 * @see model.Model#display(java.lang.String)
 	 */
 	@Override
-	public Object[] display(String name) {
-		Object[] arg = {_mazes.get(name)._newMaze.getXLength(),
-						_mazes.get(name)._newMaze.getYLength(),
-						_mazes.get(name)._newMaze.getZLength(),
-						_mazes.get(name)._newMaze.get_maze3d(),
-						_mazes.get(name)._newMaze.getStartPosition(),
-						_mazes.get(name)._newMaze.getGoalPosition()};
+	public Object[] display(String name) throws Exception {
+		try {
+		Object[] arg = {
+						
+					_mazes.get(name).get()._newMaze.getXLength(),
+					_mazes.get(name).get()._newMaze.getYLength(),
+					_mazes.get(name).get()._newMaze.getZLength(),
+					_mazes.get(name).get()._newMaze.get_maze3d(),
+					_mazes.get(name).get()._newMaze.getStartPosition(),
+					_mazes.get(name).get()._newMaze.getGoalPosition()};
+		
+		
 		return arg;
+		}
+		catch (Exception e)
+		{
+			throw e;
+		}
+		
 	}
 
 	/* (non-Javadoc)
 	 * @see model.Model#getCrossSection(java.lang.String, char, int)
 	 */
 	@Override
-	public Object getCrossSection(String name, char dim, int index) throws ArrayIndexOutOfBoundsException
+	public Object getCrossSection(String name, char dim, int index) throws Exception
 	{
+		try 
+		{
 		switch (dim) {
-        case 'x':  return (Object)_mazes.get(name)._newMaze.getCrossSectionByX(index);
-        case 'y':  return (Object)_mazes.get(name)._newMaze.getCrossSectionByY(index);
-        case 'z':  return (Object)_mazes.get(name)._newMaze.getCrossSectionByZ(index);
+        case 'x':  return (Object)_mazes.get(name).get()._newMaze.getCrossSectionByX(index);
+        case 'y':  return (Object)_mazes.get(name).get()._newMaze.getCrossSectionByY(index);
+        case 'z':  return (Object)_mazes.get(name).get()._newMaze.getCrossSectionByZ(index);
         default: return null;
 		   }
+		}
+		catch (Exception e)
+		{
+			throw e;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -97,7 +153,7 @@ public class MyModel extends Observable implements Model {
 	{
 		OutputStream out=new MyCompressorOutputStream(new FileOutputStream(path));
 		openfiles++;
-		out.write(_mazes.get(name)._newMaze.toByteArray());
+		out.write(_mazes.get(name).get()._newMaze.toByteArray());
 		out.flush();
 		out.close();	
 		openfiles--;
@@ -108,6 +164,8 @@ public class MyModel extends Observable implements Model {
 	/* (non-Javadoc)
 	 * @see model.Model#load(java.lang.String, java.lang.String)
 	 */
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void load(String name, String path) throws Exception {
 		InputStream in;
@@ -125,7 +183,14 @@ public class MyModel extends Observable implements Model {
 			byte fileData[]=new byte[buff.size()];
 			for ( int i = 0 ; i < buff.size() ; i ++ )
 				fileData[i] = buff.get(i).byteValue();
-			_mazes.put(name, new SearchableMaze(new Maze3d(fileData)));
+			
+			
+			_mazes.put(name,executer.submit(new Callable<SearchableMaze>() {
+				@Override
+				public SearchableMaze call() throws Exception {
+					return new SearchableMaze(new Maze3d(fileData));
+				}
+			}));
 			setChanged();
 			notifyObservers("Display,4,1,"+ name);
 	
@@ -136,9 +201,16 @@ public class MyModel extends Observable implements Model {
 	 * @see model.Model#mazeSize(java.lang.String)
 	 */
 	@Override
-	public int mazeSize(String name) 
+	public int mazeSize(String name) throws Exception
 	{
-		return _mazes.get(name)._newMaze.size();
+			try
+			{
+				return _mazes.get(name).get()._newMaze.size();
+			}
+			catch (Exception e)
+			{
+				throw e;
+			}
 	}
 
 	/* (non-Javadoc)
@@ -150,49 +222,122 @@ public class MyModel extends Observable implements Model {
 		return (int) f.length();
 	}
 
+	public void saveCache(String file) throws Exception
+	{
+		OutputStream fileOut=new FileOutputStream(file);
+		openfiles++;
+		GZIPOutputStream zip = new GZIPOutputStream(fileOut);
+		ObjectOutputStream out = new ObjectOutputStream(zip);
+		out.writeObject(_solutionscache);
+        out.close();
+		fileOut.close();	
+		openfiles--;
+		setChanged();
+		notifyObservers("finish saving caching");
+	}
+	
+	@SuppressWarnings("unchecked")
+	
+	public void loadCache(String file) throws Exception
+	{
+		this._solutionscache = new HashMap<Maze3d,Solution<Position>>();
+		InputStream fileIn = new FileInputStream(file);
+		openfiles++;
+		GZIPInputStream zip = new GZIPInputStream(fileIn);
+		ObjectInputStream in = new ObjectInputStream(zip);
+		_solutionscache = (HashMap<Maze3d,Solution<Position>>) in.readObject();
+		in.close();
+        fileIn.close();
+		openfiles--;
+		setChanged();
+		notifyObservers("finish loading caching");
+	}
+	
 	/* (non-Javadoc)
 	 * @see model.Model#solve(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void solve(String name,String alg) {
-		
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				openthreads++;
-				Searcher<Position> searcher = null;
-				switch (alg) {
-		    case "bfs": 
-		    	searcher = new SearcherBFS<Position>();
-		    case "man":  
-		    	searcher = new SearcherAStar<Position>(new HeuristicManhattan());
-		    case "air":  
-		    	searcher = new SearcherAStar<Position>(new HeuristicAirLine());
-			   }
-				try
-				{
-			_solutions.put(name, searcher.search(_mazes.get(name)));
+	public void solve(String name,String alg)
+	{
+		try {
+			if (_solutionscache.get(_mazes.get(name).get()._newMaze) == null)
+			{		
+			try
+					{
+				_solutions.put(name, executer.submit(new Callable<Solution<Position>>() {
+					@Override
+					public Solution<Position> call() throws Exception {
+						openthreads++;
+						Searcher<Position> searcher = null;
+						switch (alg) {
+					    case "bfs": 
+					    	searcher = new SearcherBFS<Position>();
+					    case "man":  
+					    	searcher = new SearcherAStar<Position>(new HeuristicManhattan());
+					    case "air":  
+					    	searcher = new SearcherAStar<Position>(new HeuristicAirLine());
+						   }
+						Solution<Position> sol = searcher.search(_mazes.get(name).get());
+						_solutionscache.put(_mazes.get(name).get()._newMaze, sol);
+						return sol;
+					}
+				}));
+				setChanged();
+				notifyObservers("Display,2,1," + name);
+				openthreads--;
+					}
+					catch (Exception e)
+					{
+						setChanged();
+						notifyObservers("Display,2,2," + name);
+						openthreads--;
+					}
+			}
+			else 
+			{
+				setChanged();
+				notifyObservers("Display,2,2,solution exists" + name);
+				openthreads--;
+			}
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
 			setChanged();
-			// first int = action , second int status
-			notifyObservers("Display,2,1," + name);
+			notifyObservers("error error error" + name);
 			openthreads--;
-				}
-				catch (Exception e)
-				{
-					setChanged();
-					notifyObservers("Display,2,2," + name);
-					openthreads--;
-				}
-			  }}).start();		
-
+		}
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/* (non-Javadoc)
 	 * @see model.Model#displaySolution(java.lang.String)
 	 */
 	@Override
-	public Solution<Position> displaySolution(String name) {
-		return _solutions.get(name);
+	public Solution<Position> displaySolution(String name) throws Exception 
+	{
+		if (_solutions.get(name) != null)
+		{
+		try {
+			return _solutions.get(name).get();
+			} 
+		catch (Exception e) {
+				throw e;
+			}
+		}
+		else
+		{
+			solve(name, "air");
+			return _solutions.get(name).get();
+		}
+		
 	}
 
 	/* (non-Javadoc)
@@ -200,6 +345,15 @@ public class MyModel extends Observable implements Model {
 	 */
 	@Override
 	public void exit() {
+		try{
+			saveCache("c:\\temp\\cache.zip");
+			}
+		catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("error cache save");
+		}
+		
+		
 		while (openfiles > 0 || openthreads > 0)
 		{
 			try {
@@ -207,6 +361,7 @@ public class MyModel extends Observable implements Model {
 			} catch (InterruptedException e) {
 				setChanged();
 				notifyObservers("Display,Error closing Model");
+				notifyObservers();
 			}
 			setChanged();
 			notifyObservers("Display,open files," + openfiles + ",open threads," + openthreads);

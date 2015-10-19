@@ -97,6 +97,7 @@ public class Presenter implements Observer {
 							try {
 							model.save(strArr[1], strArr[2]);
 						} catch (Exception e) {
+
 							view.displayStr("Can not save to file !");
 						}	
 						}
@@ -109,7 +110,7 @@ public class Presenter implements Observer {
 					try {
 						model.load(strArr[2], strArr[1]);
 					} catch (Exception e) {
-						view.displayStr("Can not load the file !");
+						view.displayStr("Error while loading file");
 					}
 					}
 					else 
