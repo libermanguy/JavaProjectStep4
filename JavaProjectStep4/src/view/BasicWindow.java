@@ -1,40 +1,40 @@
 package view;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+
+
 public abstract class BasicWindow implements Runnable{
 	
 	Display display;
 	Shell shell;
 	
-	abstract void initWidgets();
-	
-	 public BasicWindow(int width, int height) {
-		display=new Display();
-		shell=new Shell(display);
-		shell.setSize(width, height);
+ 	public BasicWindow(String title, int width,int height) {
+ 		display=new Display();
+ 		shell  = new Shell(display);
+ 		shell.setSize(width,height);
+ 		shell.setText(title);
 	}
-	
+ 	
+ 	abstract void initWidgets();
+
 	@Override
-	public void run(){
-		
+	public void run() {
 		initWidgets();
 		shell.open();
+		// main event loop
+		 while(!shell.isDisposed()){ // while window isn't closed
 
-		// run the event loop as long as the window is open
-		while (!shell.isDisposed()) {
-		    // read the next OS event queue and transfer it to a SWT event 
-		  if (!display.readAndDispatch())
-		   {
-		  // if there are currently no other OS event to process
-		  // sleep until the next OS event is available 
-		    display.sleep();
-		   }
-		}
+		    // 1. read events, put then in a queue.
+		    // 2. dispatch the assigned listener
+		    if(!display.readAndDispatch()){ 	// if the queue is empty
+		       display.sleep(); 			// sleep until an event occurs 
+		    }
 
-		// disposes all associated windows and their components
-		display.dispose(); 
-		
+		 } // shell is disposed
+
+		 display.dispose(); // dispose OS components
 	}
+	
 
 }
-
