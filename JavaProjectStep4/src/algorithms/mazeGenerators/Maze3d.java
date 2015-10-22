@@ -431,7 +431,7 @@ public class Maze3d implements Serializable
 					if (cell == 1)
 						x++;
 				}
-		int hash = this._start.hashCode()*100+this._end.hashCode()*10+x;
+		int hash = this._start.hashCode()+this._end.hashCode()+x;
 	    return hash;
 	}
 }

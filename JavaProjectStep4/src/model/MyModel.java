@@ -230,6 +230,7 @@ catch (Exception e) {
 		ObjectOutputStream out = new ObjectOutputStream(zip);
 		out.writeObject(_solutionscache);
         out.close();
+        zip.close();
 		fileOut.close();	
 		openfiles--;
 		setChanged();
@@ -247,6 +248,7 @@ catch (Exception e) {
 		ObjectInputStream in = new ObjectInputStream(zip);
 		_solutionscache = (HashMap<Maze3d,Solution<Position>>) in.readObject();
 		in.close();
+		zip.close();
         fileIn.close();
 		openfiles--;
 		setChanged();

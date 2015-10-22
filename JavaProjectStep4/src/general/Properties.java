@@ -1,4 +1,4 @@
-package presenter;
+package general;
 
 import java.io.Serializable;
 
