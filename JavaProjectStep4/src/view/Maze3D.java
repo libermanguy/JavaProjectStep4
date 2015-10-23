@@ -1,16 +1,28 @@
 package view;
 
+import java.io.IOException;
+import java.nio.ByteOrder;
+
+import javax.imageio.stream.IIOByteBuffer;
+import javax.imageio.stream.ImageInputStream;
+
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 public class Maze3D extends MazeDisplayer {
 
-	public int characterX=0;
-	public int characterY=2;
-	public int exitX=0;
-	public int exitY=2;
+	public int characterX;
+	public int characterY;
+	public int exitX;
+	public int exitY;
+	public int exitFloor;
 	
 	private void paintCube(double[] p,double h,PaintEvent e){
         int[] f=new int[p.length];
@@ -61,7 +73,13 @@ public class Maze3D extends MazeDisplayer {
 				          double cheight=h/2;
 				          if(mazeData[i][j]!=0)
 				        	  paintCube(dpoints, cheight,e);
-				          
+				          if(i==exitX && j==exitY){
+				        	  Image img = new Image(getDisplay(), "C:\\Java Project\\finish.jpg");
+				        	ImageData imgdata = img.getImageData();
+				        	imgdata.scaledTo(2, 2);
+				        	img =new Image(getDisplay(), imgdata);
+				        	e.gc.drawImage(img,(int)Math.round(dpoints[0]+2), (int)Math.round(dpoints[1]-cheight/2+2));			        	  
+				          }
 				          if(i==characterY && j==characterX){
 							   e.gc.setBackground(new Color(null,200,0,0));
 							   e.gc.fillOval((int)Math.round(dpoints[0]), (int)Math.round(dpoints[1]-cheight/2), (int)Math.round((w0+w1)/2), (int)Math.round(h));
@@ -138,4 +156,13 @@ public class Maze3D extends MazeDisplayer {
 		moveCharacter(col,row);
 	}
 
+	public void setExitPosition(int row, int col) {
+		exitX=col;
+		exitY=row;
+	}
+	
+	public void setExitFloor(int floor) {
+		exitFloor=floor;
 }
+}
+

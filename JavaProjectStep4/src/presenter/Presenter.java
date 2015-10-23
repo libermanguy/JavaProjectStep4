@@ -82,7 +82,7 @@ public class Presenter implements Observer {
 					{
 						try
 						{
-
+							System.out.println("in cross");
 						view.displayCrossSection((int[][]) model.getCrossSection(strArr[5], strArr[2].charAt(0), Integer.parseInt(strArr[3])));
 						}
 						catch (Exception e)

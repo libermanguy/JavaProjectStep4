@@ -50,6 +50,9 @@ public class Solution<T> implements Serializable {
 	 * @return the _steps
 	 */
 	public ArrayList<State<T>> get_steps() {
+		 for(int i = 0, j = _steps.size() - 1; i < j; i++) {
+			 _steps.add(i, _steps.remove(j));
+		    }
 		return _steps;
 	}
 	

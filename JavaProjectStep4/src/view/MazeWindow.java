@@ -1,10 +1,8 @@
 package view;
 import org.eclipse.swt.widgets.Label;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -13,15 +11,12 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.hamcrest.DiagnosingMatcher;
-
 import general.Position;
 import general.Solution;
+import general.State;
 
 public class MazeWindow extends BasicWindow implements View{
 
@@ -29,29 +24,14 @@ public class MazeWindow extends BasicWindow implements View{
 	TimerTask task;
 	MazeDisplayer maze;
 	int currentFloor;
+	String currentMaze;
+	Label floorText;
 	
 	public MazeWindow(String title, int width, int height) {
 		super(title, width, height);
 		currentFloor = 0;
 	}
 
-	private void randomWalk(MazeDisplayer maze){
-		Random r=new Random();
-		boolean b1,b2;
-		b1=r.nextBoolean();
-		b2=r.nextBoolean();
-		if(b1&&b2)
-			maze.moveUp();
-		if(b1&&!b2)
-			maze.moveDown();
-		if(!b1&&b2)
-			maze.moveRight();
-		if(!b1&&!b2)
-			maze.moveLeft();
-		
-		maze.redraw();
-	}
-	
 	@Override
 	void initWidgets() {
 		shell.setLayout(new GridLayout(2,false));
@@ -93,7 +73,7 @@ public class MazeWindow extends BasicWindow implements View{
 		hintButton.setText("Hint");
 		hintButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
 		
-		Label floorText=new Label(shell, SWT.NONE);
+		floorText=new Label(shell, SWT.NONE);
 		floorText.setText("Floor " + currentFloor);
 		Font newfont = new Font(floorText.getDisplay(), new FontData("Ariel",40,SWT.BOLD));
 		floorText.setFont(newfont);
@@ -122,9 +102,10 @@ public class MazeWindow extends BasicWindow implements View{
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				DisplayDialog diag = new DisplayDialog(shell);
-				String args = "4 by x 2 for " + diag.open();
-				System.out.println(args);
+				String mazename = diag.open();
+				String args = "3 " + mazename;
 				String[] splited = args.split(" ");
+				currentMaze = mazename; 
 				setChanged();
 				notifyObservers(splited);
 			}
@@ -139,9 +120,16 @@ public class MazeWindow extends BasicWindow implements View{
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				task.cancel();
-				timer.cancel();
-				solveButton.setEnabled(true);
+				DisplayDialog diag = new DisplayDialog(shell);
+				String mazename = diag.open(); 
+				String args = "9 " + mazename + " air";
+				String[] splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
+				args = "10 " + mazename;
+				splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
 			}
 			
 			@Override
@@ -199,11 +187,22 @@ public class MazeWindow extends BasicWindow implements View{
 
 	@Override
 	public void displayMaze(Object[] obj) {
+		Position start = (Position)obj[4];
+		Position end = (Position)obj[5];
+		int [][][] maze3d = (int[][][])obj[3];
+		int[][] maze2d = maze3d[currentFloor];
+		maze.setMazeData(maze2d);
+		maze.setCharacterPosition(start.getY(), start.getZ());
+		maze.setExitPosition(end.getY(), end.getZ());
+		System.out.println(start);
+		System.out.println();
+		maze.redraw();
 	}
 
 	@Override
 	public void displayCrossSection(Object[] array) {
 		maze.setMazeData((int[][])array);
+		maze.update();
 		maze.redraw();	
 	}
 
@@ -221,8 +220,41 @@ public class MazeWindow extends BasicWindow implements View{
 
 	@Override
 	public void displaySolution(Solution<Position> solution) {
-		// TODO Auto-generated method stub
-		
+		for (State<Position> step : solution.get_steps()) {
+			Position pos = step.getState();
+			if (pos.getX() != currentFloor)
+			{
+				currentFloor = pos.getX();
+				System.out.println("floor "+currentFloor);
+				setChanged();
+				String args = "4 by x " + currentFloor + " for " + currentMaze;
+				String[] splited = args.split(" ");
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				setChanged();
+				notifyObservers(splited);
+				maze.update();
+				maze.redraw();
+				floorText.setText("Floor " + currentFloor);
+			}
+			else
+			{
+				maze.setCharacterPosition(pos.getY(), pos.getZ());
+				maze.update();
+			}
+			try {
+				Thread.sleep(400);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		}
 	}
 
 	@Override
