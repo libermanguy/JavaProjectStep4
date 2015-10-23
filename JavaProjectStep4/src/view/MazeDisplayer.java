@@ -11,16 +11,9 @@ public abstract class MazeDisplayer extends Canvas{
 	
 	// just as a stub...
 	int[][] mazeData={
-			{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-			{1,0,0,0,0,0,0,0,1,1,0,1,0,0,1},
-			{0,0,1,1,1,1,1,0,0,1,0,1,0,1,1},
-			{1,1,1,0,0,0,1,0,1,1,0,1,0,0,1},
-			{1,0,1,0,1,1,1,0,0,0,0,1,1,0,1},
-			{1,1,0,0,0,1,0,0,1,1,1,1,0,0,1},
-			{1,0,0,1,0,0,1,0,0,0,0,1,0,1,1},
-			{1,0,1,1,0,1,1,0,1,1,0,0,0,1,1},
-			{1,0,0,0,0,0,0,0,0,1,0,1,0,0,1},
-			{1,1,1,1,1,1,1,1,1,1,1,1,0,1,1},
+			{0,1},
+			{1,0},
+			
 		};
 
 	
@@ -29,6 +22,7 @@ public abstract class MazeDisplayer extends Canvas{
 	}
 
 	public void setMazeData(int[][] mazeData){
+		System.out.println(mazeData);
 		this.mazeData=mazeData;
 	}
 	

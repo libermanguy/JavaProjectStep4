@@ -77,10 +77,12 @@ public class Presenter implements Observer {
 						view.displayStr("Wrong number of parameters");
 				break;
 				case "4": 
+					
 					if (strArr.length == 6)
 					{
 						try
 						{
+
 						view.displayCrossSection((int[][]) model.getCrossSection(strArr[5], strArr[2].charAt(0), Integer.parseInt(strArr[3])));
 						}
 						catch (Exception e)

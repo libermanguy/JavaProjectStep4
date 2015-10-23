@@ -1,5 +1,6 @@
 package view;
-
+import org.eclipse.swt.widgets.Label;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -7,19 +8,31 @@ import java.util.TimerTask;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.hamcrest.DiagnosingMatcher;
 
-public class MazeWindow extends BasicWindow{
+import general.Position;
+import general.Solution;
+
+public class MazeWindow extends BasicWindow implements View{
 
 	Timer timer;
 	TimerTask task;
+	MazeDisplayer maze;
+	int currentFloor;
 	
 	public MazeWindow(String title, int width, int height) {
 		super(title, width, height);
+		currentFloor = 0;
 	}
 
 	private void randomWalk(MazeDisplayer maze){
@@ -58,65 +71,172 @@ public class MazeWindow extends BasicWindow{
 		MenuItem exit = new MenuItem(filemenu, SWT.CASCADE);
 		exit.setText("&Exit");
 
-		Button startButton=new Button(shell, SWT.PUSH);
-		startButton.setText("Start");
-		startButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
-				
+		Button generateButton=new Button(shell, SWT.PUSH);
+		generateButton.setText("Generate");
+		generateButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
+			
 		
 		//MazeDisplayer maze=new Maze2D(shell, SWT.BORDER);		
-		MazeDisplayer maze=new Maze3D(shell, SWT.BORDER);
-		maze.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,true,1,2));
+		maze=new Maze3D(shell, SWT.BORDER);
+		maze.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,true,1,4));
 		
-		Button stopButton=new Button(shell, SWT.PUSH);
-		stopButton.setText("Stop");
-		stopButton.setLayoutData(new GridData(SWT.None, SWT.None, false, false, 1, 1));
-		stopButton.setEnabled(false);
+		Button displayButton=new Button(shell, SWT.PUSH);
+		displayButton.setText("Display");
+		displayButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
+				
+		
+		Button solveButton=new Button(shell, SWT.PUSH);
+		solveButton.setText("Solve");
+		solveButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
+		
+		Button hintButton=new Button(shell, SWT.PUSH);
+		hintButton.setText("Hint");
+		hintButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
+		
+		Label floorText=new Label(shell, SWT.NONE);
+		floorText.setText("Floor " + currentFloor);
+		Font newfont = new Font(floorText.getDisplay(), new FontData("Ariel",40,SWT.BOLD));
+		floorText.setFont(newfont);
+		floorText.setLayoutData(new GridData(SWT.CENTER, SWT.None, false, false, 2, 1));
 		
 		
-		startButton.addSelectionListener(new SelectionListener() {
+		
+		generateButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				timer=new Timer();
-				task=new TimerTask() {
-					@Override
-					public void run() {
-						display.syncExec(new Runnable() {
-							@Override
-							public void run() {
-								randomWalk(maze);
-							}
-						});
-					}
-				};				
-				timer.scheduleAtFixedRate(task, 0, 100);				
-				startButton.setEnabled(false);
-				stopButton.setEnabled(true);
+				GenerateDialog diag = new GenerateDialog(shell);
+				String args = "2 " + diag.open();
+				String[] splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
 			}
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {}
 		});
 		
-		stopButton.addSelectionListener(new SelectionListener() {
+		
+		displayButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				DisplayDialog diag = new DisplayDialog(shell);
+				String args = "4 by x 2 for " + diag.open();
+				System.out.println(args);
+				String[] splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {}
+		});
+		
+		
+		
+		solveButton.addSelectionListener(new SelectionListener() {
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				task.cancel();
 				timer.cancel();
-				startButton.setEnabled(true);
-				stopButton.setEnabled(false);
+				solveButton.setEnabled(true);
 			}
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {}
 		});
 		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		exit.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				setChanged();
+				String arg[] = new String[1];
+				arg[0] = "11";
+				notifyObservers(arg);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {}
+		});
+		
+		
+		
+		
 	}
 	
+	/*
 	public static void main(String[] args) {
 		MazeWindow win=new MazeWindow("maze example", 500, 300);
 		win.run();
+	}
+*/
+	@Override
+	public void display(Object[] arg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void Dir(String path) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void displayMaze(Object[] obj) {
+	}
+
+	@Override
+	public void displayCrossSection(Object[] array) {
+		maze.setMazeData((int[][])array);
+		maze.redraw();	
+	}
+
+	@Override
+	public void displayMazeSize(int size) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void displayFileSize(int size) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void displaySolution(Solution<Position> solution) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void displayStr(String arg) {
+		MessageBox box = new MessageBox(shell);
+		box.setMessage(arg);
+		box.open();
+		
+	}
+
+	@Override
+	public void setCLI(HashMap<String, Integer> commands) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

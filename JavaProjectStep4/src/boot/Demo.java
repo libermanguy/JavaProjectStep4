@@ -2,6 +2,7 @@ package boot;
 
 import presenter.Presenter;
 import model.MyModel;
+import view.MazeWindow;
 import view.MyView;
 
 // TODO: Auto-generated Javadoc
@@ -17,12 +18,12 @@ import view.MyView;
  */
 public class Demo {
 	public static void main(String[] args) {
-		MyView myview=new MyView();
+		MazeWindow myview=new MazeWindow("Window", 1000, 500);
 		MyModel mymodel=new MyModel();
 		Presenter presenter=new Presenter(mymodel, myview);
 		myview.addObserver(presenter);
 		mymodel.addObserver(presenter);
-		myview.startCLI();
+		myview.run();
 	}
 
 }
