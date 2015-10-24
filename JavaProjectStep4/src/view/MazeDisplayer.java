@@ -11,9 +11,7 @@ public abstract class MazeDisplayer extends Canvas{
 	
 	// just as a stub...
 	int[][] mazeData={
-			{0,0,0},
-			{0,0,0},
-			{0,0,0},
+			{0},
 		};
 
 	
@@ -42,5 +40,7 @@ public abstract class MazeDisplayer extends Canvas{
 	public abstract void setCharacterFloor(int floor);
 	
 	public abstract void setExitFloor(int floor);
+	
+	public abstract boolean isFinished();
 	
 }

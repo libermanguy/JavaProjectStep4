@@ -15,6 +15,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -26,6 +27,10 @@ public class MazeWindow extends BasicWindow implements View{
 
 	Timer timer;
 	TimerTask task;
+	Button displayButton;
+	Button solveButton;
+	Button hintButton;
+	Button generateButton;
 	MazeDisplayer maze;
 	int currentFloor;
 	int futureFloor;
@@ -58,7 +63,7 @@ public class MazeWindow extends BasicWindow implements View{
 		MenuItem exit = new MenuItem(filemenu, SWT.CASCADE);
 		exit.setText("&Exit");
 
-		Button generateButton=new Button(shell, SWT.PUSH);
+		generateButton=new Button(shell, SWT.PUSH);
 		generateButton.setText("Generate");
 		generateButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
 			
@@ -67,18 +72,20 @@ public class MazeWindow extends BasicWindow implements View{
 		maze=new Maze3D(shell, SWT.BORDER);
 		maze.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,true,1,4));
 		
-		Button displayButton=new Button(shell, SWT.PUSH);
+		displayButton=new Button(shell, SWT.PUSH);
 		displayButton.setText("Display");
 		displayButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
-				
+		displayButton.setEnabled(false);
 		
-		Button solveButton=new Button(shell, SWT.PUSH);
+		solveButton=new Button(shell, SWT.PUSH);
 		solveButton.setText("Solve");
 		solveButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
+		solveButton.setEnabled(false);
 		
-		Button hintButton=new Button(shell, SWT.PUSH);
+		hintButton=new Button(shell, SWT.PUSH);
 		hintButton.setText("Hint");
 		hintButton.setLayoutData(new GridData(SWT.FILL, SWT.None, false, false, 1, 1));
+		hintButton.setEnabled(false);
 		
 		floorText=new Label(shell, SWT.NONE);
 		floorText.setText("Floor " + currentFloor);
@@ -98,6 +105,7 @@ public class MazeWindow extends BasicWindow implements View{
 				setChanged();
 				notifyObservers(splited);
 				shell.forceFocus();
+				displayButton.setEnabled(true);
 			}
 			
 			@Override
@@ -119,6 +127,8 @@ public class MazeWindow extends BasicWindow implements View{
 				setChanged();
 				notifyObservers(splited);
 				shell.forceFocus();
+				solveButton.setEnabled(true);
+				hintButton.setEnabled(true);
 			}
 			
 			@Override
@@ -142,6 +152,14 @@ public class MazeWindow extends BasicWindow implements View{
 				setChanged();
 				notifyObservers(splited);
 				shell.forceFocus();*/
+				generateButton.setEnabled(false);
+				hintButton.setEnabled(false);
+				solveButton.setEnabled(false);
+				displayButton.setEnabled(false);
+				generateButton.setText("Generate");
+				displayButton.setText("Display");
+				solveButton.setText("Solve");
+				hintButton.setText("Hint");
 				String pos = currentFloor + "," + maze.getCharacterPosition()[1]+","+maze.getCharacterPosition()[0];
 				String args = "12 " + currentMaze + " "  + pos;
 				String[] splited = args.split(" ");
@@ -176,14 +194,42 @@ public class MazeWindow extends BasicWindow implements View{
 				splited = args.split(" ");
 				setChanged();
 				notifyObservers(splited);
+				finish();
 			}
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {}
 		});
 
+			
 
-		
+			properties.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				FileDialog file = new FileDialog(shell);
+			file.open();
+			System.out.println(file.getFilterPath()+"\\"+file.getFileName());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {}
+		});
+			
+			
+			
+			shell.addListener(SWT.Close,new Listener() {
+				
+				@Override
+				public void handleEvent(Event arg0) {
+					setChanged();
+					String arg[] = new String[1];
+					arg[0] = "11";
+					notifyObservers(arg);
+					
+				}
+			});
+	
 		
 	
 		exit.addSelectionListener(new SelectionListener() {
@@ -211,20 +257,24 @@ public class MazeWindow extends BasicWindow implements View{
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if(arg0.keyCode==16777218)
-				{
+				{ 
 					maze.moveDown();
+					finish();
 				}
 				if(arg0.keyCode==16777217)
 				{
 					maze.moveUp();
+					finish();
 				}
 				if(arg0.keyCode==16777220)
 				{
 					maze.moveRight();
+					finish();
 				}
 				if(arg0.keyCode==16777219)
 				{
 					maze.moveLeft();
+					finish();
 				}
 				if(arg0.keyCode==SWT.PAGE_UP)
 				{
@@ -237,6 +287,7 @@ public class MazeWindow extends BasicWindow implements View{
 						notifyObservers(splited);
 						maze.update();
 						maze.redraw();
+						finish();
 					}
 					else
 					{
@@ -254,6 +305,7 @@ public class MazeWindow extends BasicWindow implements View{
 						notifyObservers(splited);
 						maze.update();
 						maze.redraw();
+						finish();
 					}
 					else
 					{
@@ -379,11 +431,15 @@ public class MazeWindow extends BasicWindow implements View{
 			
 			
 		}
+		generateButton.setEnabled(true);
+		displayButton.setEnabled(true);
+		finish();
 	}
 
 	@Override
 	public void displayStr(String arg) {
-		MessageBox box = new MessageBox(shell);
+		MessageBox box = new MessageBox(shell,SWT.ICON_ERROR);
+		box.setText("Maze don`t want to play");
 		box.setMessage(arg);
 		box.open();
 		
@@ -426,6 +482,20 @@ public class MazeWindow extends BasicWindow implements View{
 		
 	}
 	
-	
+	public void finish()
+	{
+		if (maze.isFinished())
+		{
+			floorText.setText("FINIsh");
+			solveButton.setEnabled(false);
+			hintButton.setEnabled(false);
+		}
+		else
+		{
+			floorText.setText("Floor "+currentFloor);
+			solveButton.setEnabled(true);
+			hintButton.setEnabled(true);
+		}
+	}
 
 }

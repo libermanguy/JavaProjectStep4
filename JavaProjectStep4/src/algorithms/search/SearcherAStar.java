@@ -33,6 +33,8 @@ public class SearcherAStar<T> extends CommonSearcher<T> implements Searcher<T> {
 	 */
 	@Override
 	public Solution<T> search(Searchable<T> s) {
+		if (s != null)
+		{
 		  addToOpenList(s.getStartState());
 		  HashSet<State<T>> closedSet=new HashSet<State<T>>();
 
@@ -76,6 +78,7 @@ public class SearcherAStar<T> extends CommonSearcher<T> implements Searcher<T> {
 		      }
 		    }
 		  }
+		}
 		  return null;
 	}
 

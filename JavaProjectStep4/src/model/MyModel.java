@@ -61,8 +61,8 @@ public class MyModel extends Observable implements Model {
 		try{
 			loadCache("c:\\temp\\cache.zip");
 			}
-catch (Exception e) {
-			System.out.println("error cache load");
+		catch (Exception e) {
+			notifyObservers("Cache doesn`t exist");
 		}
 		
 		
@@ -86,12 +86,15 @@ catch (Exception e) {
 				_mazes.put(name, executer.submit(new Callable<SearchableMaze>() {
 					@Override
 					public SearchableMaze call() throws Exception {
+						openthreads++;
 						Maze3d maz = new MyMaze3dGenerator().generate(x, y, z);
+						openthreads--;
+						
 						return new SearchableMaze(maz);
 					}
 				}));
-				setChanged();
-				notifyObservers("Display,1,1," + name);
+			//	setChanged();
+			//	notifyObservers("Display,1,1," + name);
 				openthreads--;
 			/*    }
 			  }).start();		*/
@@ -157,8 +160,8 @@ catch (Exception e) {
 		out.flush();
 		out.close();	
 		openfiles--;
-		setChanged();
-		notifyObservers("Display,3,1,"+ name);
+	//	setChanged();
+	//	notifyObservers("Display,3,1,"+ name);
 	}
 
 	/* (non-Javadoc)
@@ -191,8 +194,8 @@ catch (Exception e) {
 					return new SearchableMaze(new Maze3d(fileData));
 				}
 			}));
-			setChanged();
-			notifyObservers("Display,4,1,"+ name);
+	//		setChanged();
+	//		notifyObservers("Display,4,1,"+ name);
 	
 
 	}
@@ -233,8 +236,8 @@ catch (Exception e) {
         zip.close();
 		fileOut.close();	
 		openfiles--;
-		setChanged();
-		notifyObservers("finish saving caching");
+	//	setChanged();
+	//	notifyObservers("finish saving caching");
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -251,8 +254,8 @@ catch (Exception e) {
 		zip.close();
         fileIn.close();
 		openfiles--;
-		setChanged();
-		notifyObservers("finish loading caching");
+	//	setChanged();
+	//	notifyObservers("finish loading caching");
 	}
 	
 	/* (non-Javadoc)
@@ -284,27 +287,27 @@ catch (Exception e) {
 						return sol;
 					}
 				}));
-				setChanged();
-				notifyObservers("Display,2,1," + name);
+			//	setChanged();
+			//	notifyObservers("Display,2,1," + name);
 				openthreads--;
 					}
 					catch (Exception e)
 					{
 						setChanged();
-						notifyObservers("Display,2,2," + name);
+						notifyObservers("Error Solving Maze " + name);
 						openthreads--;
 					}
 			}
 			else 
 			{
-				setChanged();
-				notifyObservers("Display,2,2,solution exists" + name);
+			//	setChanged();
+			//	notifyObservers("Display,2,2,solution exists" + name);
 				openthreads--;
 			}
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO Auto-generated catch block
 			setChanged();
-			notifyObservers("error error error" + name);
+			notifyObservers("Error Solving Maze " + name);
 			openthreads--;
 		}
 	}
@@ -359,16 +362,16 @@ catch (Exception e) {
 		while (openfiles > 0 || openthreads > 0)
 		{
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(5000);
 			} catch (InterruptedException e) {
 				setChanged();
-				notifyObservers("Display,Error closing Model");
-				notifyObservers();
+			//	notifyObservers("Display,Error closing Model");
+			//	notifyObservers();
 			}
 			setChanged();
-			notifyObservers("Display,open files," + openfiles + ",open threads," + openthreads);
+			notifyObservers("Still there are open files: " + openfiles + " open threads:" + openthreads);
 		}
-		notifyObservers("Display,Finish closing Model");
+		notifyObservers("Finish closing Model");
 	}
 
 	@Override
@@ -379,7 +382,6 @@ catch (Exception e) {
 			public SearchableMaze call() throws Exception {
 				currentmaze._newMaze.setStartPosition(newpos);
 				SearchableMaze newmaze = new SearchableMaze(currentmaze._newMaze);
-				System.out.println(newmaze.getGoalState());
 				return newmaze;
 				
 			}

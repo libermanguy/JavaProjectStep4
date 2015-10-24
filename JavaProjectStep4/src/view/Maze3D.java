@@ -9,11 +9,11 @@ import org.eclipse.swt.widgets.Composite;
 
 public class Maze3D extends MazeDisplayer {
 
-	public int characterX;
-	public int characterY;
+	public int characterX=-1;
+	public int characterY=-1;
 	public int characterFloor;
-	public int exitX;
-	public int exitY;
+	public int exitX=-1;
+	public int exitY=-1;
 	public int exitFloor;
 	
 	private void paintCube(double[] p,double h,PaintEvent e){
@@ -73,9 +73,9 @@ public class Maze3D extends MazeDisplayer {
 				        	e.gc.drawImage(imgbuff,(int)Math.round(dpoints[0]+2), (int)Math.round(dpoints[1]-cheight/2+2));			        	  
 				          }
 				          if(i==characterY && j==characterX){
-							   e.gc.setBackground(new Color(null,200,0,0));
+							   e.gc.setBackground(new Color(null,0,200,150));
 							   e.gc.fillOval((int)Math.round(dpoints[0]), (int)Math.round(dpoints[1]-cheight/2), (int)Math.round((w0+w1)/2), (int)Math.round(h));
-							   e.gc.setBackground(new Color(null,255,0,0));
+							   e.gc.setBackground(new Color(null,0,255,150));
 							   e.gc.fillOval((int)Math.round(dpoints[0]+2), (int)Math.round(dpoints[1]-cheight/2+2), (int)Math.round((w0+w1)/2/1.5), (int)Math.round(h/1.5));
 							   e.gc.setBackground(new Color(null,0,0,0));				        	  
 				          }
@@ -164,6 +164,13 @@ public class Maze3D extends MazeDisplayer {
 	public void setCharacterFloor(int floor)
 	{
 		characterFloor = floor;
+	}
+
+	@Override
+	public boolean isFinished() {
+		if ( characterX == exitX && characterY == exitY && characterFloor == exitFloor)
+			return true;
+			return false;
 	}
 }
 
