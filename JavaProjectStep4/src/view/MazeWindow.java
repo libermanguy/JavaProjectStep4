@@ -29,7 +29,7 @@ public class MazeWindow extends BasicWindow implements View{
 	MazeDisplayer maze;
 	int currentFloor;
 	int futureFloor;
-	int exitFloor;
+	int topFloor;
 	String currentMaze;
 	Label floorText;
 	
@@ -212,7 +212,7 @@ public class MazeWindow extends BasicWindow implements View{
 				}
 				if(arg0.keyCode==SWT.PAGE_UP)
 				{
-					if (currentFloor < exitFloor)
+					if (currentFloor < topFloor)
 					{
 						futureFloor = currentFloor+1;
 						String args = "4 by x " + futureFloor + " for " + currentMaze;
@@ -285,7 +285,8 @@ public class MazeWindow extends BasicWindow implements View{
 		maze.setCharacterPosition(start.getY(), start.getZ());
 		maze.setCharacterFloor(currentFloor);
 		maze.setExitPosition(end.getY(), end.getZ());
-		exitFloor = maze3d.length-1;
+		maze.setExitFloor(end.getX());
+		topFloor = maze3d.length-1;
 		maze.redraw();
 	}
 
@@ -326,9 +327,11 @@ public class MazeWindow extends BasicWindow implements View{
 	public void displaySolution(Solution<Position> solution) {
 		for (State<Position> step : solution.get_steps()) {
 			Position pos = step.getState();
-			if (pos.getX() != currentFloor)
+			futureFloor = pos.getX();
+			if (futureFloor != currentFloor)
 			{
-				currentFloor = pos.getX();
+				
+				currentFloor = futureFloor;
 				maze.setCharacterFloor(currentFloor);
 				setChanged();
 				String args = "4 by x " + currentFloor + " for " + currentMaze;
@@ -348,7 +351,6 @@ public class MazeWindow extends BasicWindow implements View{
 			else
 			{
 				maze.setCharacterPosition(pos.getY(), pos.getZ());
-				maze.setCharacterFloor(currentFloor);
 				maze.update();
 			}
 			try {
