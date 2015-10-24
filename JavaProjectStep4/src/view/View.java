@@ -70,5 +70,7 @@ public interface View {
 
 	public void setCLI(HashMap<String, Integer> commands);
 
+	public void displayNextStep(State<Position> state);
+
 	
 }

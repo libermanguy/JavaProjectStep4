@@ -13,6 +13,7 @@ import java.util.Observable;
 
 import general.Position;
 import general.Solution;
+import general.State;
 
 /**
  * The Class MyView.
@@ -291,6 +292,13 @@ public class MyView extends Observable implements View
 					);
 			out.flush();
 		}
+		
+	}
+
+
+	@Override
+	public void displayNextStep(State<Position> state) {
+		// TODO Auto-generated method stub
 		
 	}
 

@@ -34,6 +34,7 @@ public class Presenter implements Observer {
 		commands.put("display solution", 10);
 		commands.put("exit", 11);
 		commands.put("set start", 12);
+		commands.put("get next step", 13);
 		view.setCLI(commands);
 	}
 
@@ -200,6 +201,21 @@ public class Presenter implements Observer {
 						}
 					}
 				break;
+				case "13":
+					if (strArr.length == 3)
+					{
+						try
+						{
+							model.solve(strArr[1], strArr[2]);
+							view.displayNextStep(model.displaySolution(strArr[1]).get_steps().get(0));
+						}
+						catch (Exception e)
+						{
+							view.displayStr("Failure while solving the maze");
+						}
+					}
+				break;
+				
 			}
 		}
 		

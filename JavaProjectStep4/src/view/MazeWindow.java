@@ -40,6 +40,7 @@ public class MazeWindow extends BasicWindow implements View{
 
 	@Override
 	void initWidgets() {
+		shell.forceFocus();
 		shell.setLayout(new GridLayout(2,false));
 		
 		Menu menu = new Menu(shell,SWT.BAR);
@@ -96,6 +97,7 @@ public class MazeWindow extends BasicWindow implements View{
 				String[] splited = args.split(" ");
 				setChanged();
 				notifyObservers(splited);
+				shell.forceFocus();
 			}
 			
 			@Override
@@ -111,9 +113,12 @@ public class MazeWindow extends BasicWindow implements View{
 				String mazename = diag.open();
 				String args = "3 " + mazename;
 				String[] splited = args.split(" ");
+				currentFloor = 0;
+				floorText.setText("Floor " + 0);
 				currentMaze = mazename; 
 				setChanged();
 				notifyObservers(splited);
+				shell.forceFocus();
 			}
 			
 			@Override
@@ -126,16 +131,31 @@ public class MazeWindow extends BasicWindow implements View{
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				DisplayDialog diag = new DisplayDialog(shell);
+				/*DisplayDialog diag = new DisplayDialog(shell);
 				String mazename = diag.open(); 
-				String args = "9 " + mazename + " air";
+				String args = "9 " + currentMaze + " air";
 				String[] splited = args.split(" ");
 				setChanged();
 				notifyObservers(splited);
-				args = "10 " + mazename;
+				args = "10 " + currentMaze;
 				splited = args.split(" ");
 				setChanged();
 				notifyObservers(splited);
+				shell.forceFocus();*/
+				String pos = currentFloor + "," + maze.getCharacterPosition()[1]+","+maze.getCharacterPosition()[0];
+				String args = "12 " + currentMaze + " "  + pos;
+				String[] splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
+				args = "9 " + currentMaze + " air";
+				splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
+				args = "10 " + currentMaze;
+				splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
+				shell.forceFocus();
 			}
 			
 			@Override
@@ -152,11 +172,7 @@ public class MazeWindow extends BasicWindow implements View{
 				String[] splited = args.split(" ");
 				setChanged();
 				notifyObservers(splited);
-				args = "9 " + currentMaze + " air";
-				splited = args.split(" ");
-				setChanged();
-				notifyObservers(splited);
-				args = "10 " + currentMaze;
+				args = "13 " + currentMaze + " air";
 				splited = args.split(" ");
 				setChanged();
 				notifyObservers(splited);
@@ -280,6 +296,8 @@ public class MazeWindow extends BasicWindow implements View{
 		Position start = (Position)obj[4];
 		Position end = (Position)obj[5];
 		int [][][] maze3d = (int[][][])obj[3];
+		currentFloor =0;
+		floorText.setText("Floor " + currentFloor);
 		int[][] maze2d = maze3d[currentFloor];
 		maze.setMazeData(maze2d);
 		maze.setCharacterPosition(start.getY(), start.getZ());
@@ -306,7 +324,6 @@ public class MazeWindow extends BasicWindow implements View{
 		}
 		else
 		{
-			System.out.println(newmaze [pos[1]][pos[0]]);
 			displayStr("no where to go");
 		}
 	}
@@ -370,6 +387,37 @@ public class MazeWindow extends BasicWindow implements View{
 		box.setMessage(arg);
 		box.open();
 		
+	}
+	
+	public void displayNextStep(State<Position> step)
+	{
+		Position pos = step.getState();
+		futureFloor = pos.getX();
+		if (futureFloor != currentFloor)
+		{
+			
+			currentFloor = futureFloor;
+			maze.setCharacterFloor(currentFloor);
+			setChanged();
+			String args = "4 by x " + currentFloor + " for " + currentMaze;
+			String[] splited = args.split(" ");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			setChanged();
+			notifyObservers(splited);
+			maze.update();
+			maze.redraw();
+			floorText.setText("Floor " + currentFloor);
+		}
+		else
+		{
+			maze.setCharacterPosition(pos.getY(), pos.getZ());
+			maze.update();
+		}
 	}
 
 	@Override
