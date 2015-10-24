@@ -75,4 +75,11 @@ public class Maze2D extends MazeDisplayer{
 		
 	}
 
+
+	@Override
+	public int[] getCharacterPosition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

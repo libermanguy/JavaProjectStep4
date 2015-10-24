@@ -3,6 +3,8 @@ package presenter;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
+
+import general.Position;
 import model.Model;
 import view.View;
 
@@ -31,6 +33,7 @@ public class Presenter implements Observer {
 		commands.put("solve", 9);
 		commands.put("display solution", 10);
 		commands.put("exit", 11);
+		commands.put("set start", 12);
 		view.setCLI(commands);
 	}
 
@@ -82,7 +85,6 @@ public class Presenter implements Observer {
 					{
 						try
 						{
-							System.out.println("in cross");
 						view.displayCrossSection((int[][]) model.getCrossSection(strArr[5], strArr[2].charAt(0), Integer.parseInt(strArr[3])));
 						}
 						catch (Exception e)
@@ -183,6 +185,20 @@ public class Presenter implements Observer {
 					model.exit();
 					view.displayStr("Program will now exit !");
 					System.exit(0);
+				break;
+				case "12":
+					if (strArr.length == 3)
+					{
+						try
+						{
+						
+							model.setStartPosition(strArr[1], new Position(strArr[2]));
+						}
+						catch (Exception e)
+						{
+							view.displayStr("Failure while setting startup position");
+						}
+					}
 				break;
 			}
 		}

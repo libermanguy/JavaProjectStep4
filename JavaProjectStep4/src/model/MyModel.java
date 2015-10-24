@@ -371,5 +371,21 @@ catch (Exception e) {
 		notifyObservers("Display,Finish closing Model");
 	}
 
+	@Override
+	public void setStartPosition(String name, Position newpos) throws Exception{
+		SearchableMaze currentmaze = _mazes.get(name).get();
+		_mazes.put(name,executer.submit(new Callable<SearchableMaze>() {
+			@Override
+			public SearchableMaze call() throws Exception {
+				currentmaze._newMaze.setStartPosition(newpos);
+				SearchableMaze newmaze = new SearchableMaze(currentmaze._newMaze);
+				System.out.println(newmaze.getGoalState());
+				return newmaze;
+				
+			}
+		})	
+		);
+	}
+
 
 }

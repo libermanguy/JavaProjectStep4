@@ -1,9 +1,12 @@
 package view;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
@@ -11,6 +14,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -24,6 +28,8 @@ public class MazeWindow extends BasicWindow implements View{
 	TimerTask task;
 	MazeDisplayer maze;
 	int currentFloor;
+	int futureFloor;
+	int exitFloor;
 	String currentMaze;
 	Label floorText;
 	
@@ -135,19 +141,35 @@ public class MazeWindow extends BasicWindow implements View{
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {}
 		});
+			
+		
+			hintButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				String pos = currentFloor + "," + maze.getCharacterPosition()[1]+","+maze.getCharacterPosition()[0];
+				String args = "12 " + currentMaze + " "  + pos;
+				String[] splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
+				args = "9 " + currentMaze + " air";
+				splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
+				args = "10 " + currentMaze;
+				splited = args.split(" ");
+				setChanged();
+				notifyObservers(splited);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {}
+		});
+
+
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	
 		exit.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -161,6 +183,74 @@ public class MazeWindow extends BasicWindow implements View{
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {}
 		});
+	
+		shell.addKeyListener((new KeyListener() {
+			
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if(arg0.keyCode==16777218)
+				{
+					maze.moveDown();
+				}
+				if(arg0.keyCode==16777217)
+				{
+					maze.moveUp();
+				}
+				if(arg0.keyCode==16777220)
+				{
+					maze.moveRight();
+				}
+				if(arg0.keyCode==16777219)
+				{
+					maze.moveLeft();
+				}
+				if(arg0.keyCode==SWT.PAGE_UP)
+				{
+					if (currentFloor < exitFloor)
+					{
+						futureFloor = currentFloor+1;
+						String args = "4 by x " + futureFloor + " for " + currentMaze;
+						String[] splited = args.split(" ");
+						setChanged();
+						notifyObservers(splited);
+						maze.update();
+						maze.redraw();
+					}
+					else
+					{
+						displayStr("you're on top of the world again !");
+					}
+				}
+				if(arg0.keyCode==SWT.PAGE_DOWN)
+				{ 
+					if (currentFloor > 0)
+					{ 
+						futureFloor = currentFloor-1;
+						String args = "4 by x " + futureFloor + " for " + currentMaze;
+						String[] splited = args.split(" ");
+						setChanged();
+						notifyObservers(splited);
+						maze.update();
+						maze.redraw();
+					}
+					else
+					{
+						displayStr("you can't get any lower than that ;)");
+					}
+				}
+				
+			}
+		}
+		));
+
+		
+		
 		
 		
 		
@@ -193,17 +283,31 @@ public class MazeWindow extends BasicWindow implements View{
 		int[][] maze2d = maze3d[currentFloor];
 		maze.setMazeData(maze2d);
 		maze.setCharacterPosition(start.getY(), start.getZ());
+		maze.setCharacterFloor(currentFloor);
 		maze.setExitPosition(end.getY(), end.getZ());
-		System.out.println(start);
-		System.out.println();
+		exitFloor = maze3d.length-1;
 		maze.redraw();
 	}
 
 	@Override
 	public void displayCrossSection(Object[] array) {
-		maze.setMazeData((int[][])array);
-		maze.update();
-		maze.redraw();	
+		int[][] newmaze = (int[][])array;
+		int[] pos = maze.getCharacterPosition();
+		if (newmaze [pos[1]][pos[0]] == 0 )
+		{
+			
+			currentFloor=futureFloor;
+			maze.setCharacterFloor(currentFloor);
+			maze.setMazeData((int[][])array);
+			floorText.setText("Floor " + currentFloor);
+			maze.update();
+			maze.redraw();	
+		}
+		else
+		{
+			System.out.println(newmaze [pos[1]][pos[0]]);
+			displayStr("no where to go");
+		}
 	}
 
 	@Override
@@ -225,7 +329,7 @@ public class MazeWindow extends BasicWindow implements View{
 			if (pos.getX() != currentFloor)
 			{
 				currentFloor = pos.getX();
-				System.out.println("floor "+currentFloor);
+				maze.setCharacterFloor(currentFloor);
 				setChanged();
 				String args = "4 by x " + currentFloor + " for " + currentMaze;
 				String[] splited = args.split(" ");
@@ -244,6 +348,7 @@ public class MazeWindow extends BasicWindow implements View{
 			else
 			{
 				maze.setCharacterPosition(pos.getY(), pos.getZ());
+				maze.setCharacterFloor(currentFloor);
 				maze.update();
 			}
 			try {
@@ -270,5 +375,7 @@ public class MazeWindow extends BasicWindow implements View{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
 
 }

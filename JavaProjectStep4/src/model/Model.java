@@ -94,5 +94,6 @@ public interface Model {
 	 * Exit.
 	 */
 	
+	public void setStartPosition(String name, Position newpos) throws Exception;
 	public void exit();
 }

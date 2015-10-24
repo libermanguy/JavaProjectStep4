@@ -1,25 +1,17 @@
 package view;
 
-import java.io.IOException;
-import java.nio.ByteOrder;
-
-import javax.imageio.stream.IIOByteBuffer;
-import javax.imageio.stream.ImageInputStream;
-
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 
 public class Maze3D extends MazeDisplayer {
 
 	public int characterX;
 	public int characterY;
+	public int characterFloor;
 	public int exitX;
 	public int exitY;
 	public int exitFloor;
@@ -73,12 +65,12 @@ public class Maze3D extends MazeDisplayer {
 				          double cheight=h/2;
 				          if(mazeData[i][j]!=0)
 				        	  paintCube(dpoints, cheight,e);
-				          if(i==exitX && j==exitY){
-				        	  Image img = new Image(getDisplay(), "C:\\Java Project\\finish.jpg");
+				          if(i==exitY && j==exitX && exitFloor==characterFloor){
+				        	Image img = new Image(getDisplay(), "C:\\Java Project\\finish.jpg");
 				        	ImageData imgdata = img.getImageData();
-				        	imgdata.scaledTo(2, 2);
 				        	img =new Image(getDisplay(), imgdata);
-				        	e.gc.drawImage(img,(int)Math.round(dpoints[0]+2), (int)Math.round(dpoints[1]-cheight/2+2));			        	  
+				        	Image imgbuff = new Image(getDisplay(),img.getImageData().scaledTo((int)Math.round((w0+w1)/2), (int)Math.round(h)));
+				        	e.gc.drawImage(imgbuff,(int)Math.round(dpoints[0]+2), (int)Math.round(dpoints[1]-cheight/2+2));			        	  
 				          }
 				          if(i==characterY && j==characterX){
 							   e.gc.setBackground(new Color(null,200,0,0));
@@ -164,5 +156,14 @@ public class Maze3D extends MazeDisplayer {
 	public void setExitFloor(int floor) {
 		exitFloor=floor;
 }
+	public int[] getCharacterPosition()
+	{
+		int[] arr = { characterX, characterY };
+		return arr;
+	}
+	public void setCharacterFloor(int floor)
+	{
+		characterFloor = floor;
+	}
 }
 
