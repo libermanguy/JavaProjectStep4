@@ -1,9 +1,13 @@
 package boot;
 
 import presenter.Presenter;
+
+import java.io.IOException;
+
 import model.MyModel;
 import view.MazeWindow;
 import view.MyView;
+import view.View;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -18,12 +22,35 @@ import view.MyView;
  */
 public class Demo {
 	public static void main(String[] args) {
-		MazeWindow myview=new MazeWindow("Window", 1000, 500);
+		
+		
 		MyModel mymodel=new MyModel();
-		Presenter presenter=new Presenter(mymodel, myview);
-		myview.addObserver(presenter);
-		mymodel.addObserver(presenter);
-		myview.run();
+		Presenter presenter=null;
+		int option = 2;
+		
+		if (option == 1)
+		{
+			MyView myview=new MyView();
+			presenter=new Presenter(mymodel, myview);
+			myview.startCLI();
+		}
+		if (option == 2)
+		{
+			MazeWindow myview=new MazeWindow("Window", 1000, 500);
+			presenter=new Presenter(mymodel, myview);
+			myview.addObserver(presenter);
+			mymodel.addObserver(presenter);
+			myview.run();
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 
 }
