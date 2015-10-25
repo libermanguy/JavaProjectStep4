@@ -218,7 +218,6 @@ public class Presenter implements Observer {
 				break;
 				
 				case "14":
-					view.displayStr("now will load Properties Loaded");
 					if (strArr.length == 2)
 					{
 						try
@@ -228,7 +227,7 @@ public class Presenter implements Observer {
 						}
 						catch (Exception e)
 						{
-							view.displayStr("Failure while solving the maze");
+							view.displayStr("Failure while Loading Properties");
 						}
 					}
 				break;

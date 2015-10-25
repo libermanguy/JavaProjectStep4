@@ -53,6 +53,8 @@ public class MyModel extends Observable implements Model {
 	
 	ExecutorService executer;
 	
+	String workspace;
+	
 	/**
 	 * Instantiates a new my model.
 	 */
@@ -60,19 +62,10 @@ public class MyModel extends Observable implements Model {
 		super();
 		this._mazes = new HashMap<String,Future<SearchableMaze>>();
 		this._solutions = new HashMap<String,Future<Solution<Position>>>();
-		try{
-			loadCache("c:\\temp\\cache.zip");
-			}
-		catch (Exception e) {
-			notifyObservers("Cache doesn`t exist");
-		}
-		
-		
-		
-		
 		executer = Executors.newFixedThreadPool(20); // change later
 		openfiles=0;
 		openthreads=0;
+		workspace = "c:\\temp\\";
 	}
 
 	/* (non-Javadoc)
@@ -353,7 +346,7 @@ public class MyModel extends Observable implements Model {
 	@Override
 	public void exit() {
 		try{
-			saveCache("c:\\temp\\cache.zip");
+			saveCache(workspace+ "cache.zip");
 			}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -394,6 +387,16 @@ public class MyModel extends Observable implements Model {
 	public void setProperties(String file) throws Exception{
 		this.prop = new Properties();
 		prop.loadProp(file);
+		System.out.println(prop.getThreadcount());
+		executer = Executors.newFixedThreadPool(prop.getThreadcount());
+		workspace = prop.getWorkspace();
+		try{
+			loadCache(workspace + "cache.zip");
+			}
+		catch (Exception e) {
+			notifyObservers("Cache doesn`t exist");
+		}
+		
 	}
 
 

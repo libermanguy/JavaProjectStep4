@@ -141,17 +141,6 @@ public class MazeWindow extends BasicWindow implements View{
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				/*DisplayDialog diag = new DisplayDialog(shell);
-				String mazename = diag.open(); 
-				String args = "9 " + currentMaze + " air";
-				String[] splited = args.split(" ");
-				setChanged();
-				notifyObservers(splited);
-				args = "10 " + currentMaze;
-				splited = args.split(" ");
-				setChanged();
-				notifyObservers(splited);
-				shell.forceFocus();*/
 				generateButton.setEnabled(false);
 				hintButton.setEnabled(false);
 				solveButton.setEnabled(false);
