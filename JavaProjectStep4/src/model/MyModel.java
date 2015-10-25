@@ -26,9 +26,9 @@ import java.util.zip.GZIPOutputStream;
 import algorithms.mazeGenerators.*;
 import algorithms.search.*;
 import general.Position;
+import general.Properties;
 import general.Solution;
 import io.*;
-
 
 /**
  * The Class MyModel.
@@ -48,6 +48,8 @@ public class MyModel extends Observable implements Model {
 	
 	/** The openthreads. */
 	int openthreads;
+	
+	Properties prop;
 	
 	ExecutorService executer;
 	
@@ -387,6 +389,11 @@ public class MyModel extends Observable implements Model {
 			}
 		})	
 		);
+	}
+	
+	public void setProperties(String file) throws Exception{
+		this.prop = new Properties();
+		prop.loadProp(file);
 	}
 
 

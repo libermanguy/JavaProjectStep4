@@ -35,6 +35,7 @@ public class Presenter implements Observer {
 		commands.put("exit", 11);
 		commands.put("set start", 12);
 		commands.put("get next step", 13);
+		commands.put("load properties", 14);
 		view.setCLI(commands);
 	}
 
@@ -208,6 +209,22 @@ public class Presenter implements Observer {
 						{
 							model.solve(strArr[1], strArr[2]);
 							view.displayNextStep(model.displaySolution(strArr[1]).get_steps().get(0));
+						}
+						catch (Exception e)
+						{
+							view.displayStr("Failure while solving the maze");
+						}
+					}
+				break;
+				
+				case "14":
+					view.displayStr("now will load Properties Loaded");
+					if (strArr.length == 2)
+					{
+						try
+						{
+							model.setProperties(strArr[1]);
+							view.displayStr("Properties Loaded");
 						}
 						catch (Exception e)
 						{

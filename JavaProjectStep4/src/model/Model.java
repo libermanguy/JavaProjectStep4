@@ -96,4 +96,6 @@ public interface Model {
 	
 	public void setStartPosition(String name, Position newpos) throws Exception;
 	public void exit();
+	
+	public void setProperties(String file) throws Exception;
 }
