@@ -42,9 +42,6 @@ public class Properties implements Serializable
 		NodeList nlist = doc.getElementsByTagName("properties");
 		Node n = nlist.item(0);
 		Element e = (Element)n;
-		System.out.println(e.getElementsByTagName("threadcount").item(0).getTextContent());
-		System.out.println(e.getElementsByTagName("workspace").item(0).getTextContent());
-		System.out.println(e.getElementsByTagName("display").item(0).getTextContent());
 	}
 	
 	public void saveProp(String file) throws Exception

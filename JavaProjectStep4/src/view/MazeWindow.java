@@ -207,9 +207,12 @@ public class MazeWindow extends BasicWindow implements View{
 			
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				FileDialog file = new FileDialog(shell);
+			FileDialog file = new FileDialog(shell);
 			file.open();
-			System.out.println(file.getFilterPath()+"\\"+file.getFileName());
+			String args = "14 " + file.getFilterPath()+"\\"+file.getFileName();
+			String[] splited = args.split(" ");
+			setChanged();
+			notifyObservers(splited);
 			}
 			
 			@Override
