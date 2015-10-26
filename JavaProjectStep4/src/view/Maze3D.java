@@ -1,5 +1,7 @@
 package view;
 
+import java.io.File;
+
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -66,7 +68,7 @@ public class Maze3D extends MazeDisplayer {
 				          if(mazeData[i][j]!=0)
 				        	  paintCube(dpoints, cheight,e);
 				          if(i==exitY && j==exitX && exitFloor==characterFloor){
-				        	Image img = new Image(getDisplay(), "C:\\Java Project\\finish.jpg");
+				        	Image img = new Image(getDisplay(),	this.getClass().getResource("/images/finish.jpg").getPath());
 				        	ImageData imgdata = img.getImageData();
 				        	img =new Image(getDisplay(), imgdata);
 				        	Image imgbuff = new Image(getDisplay(),img.getImageData().scaledTo((int)Math.round((w0+w1)/2), (int)Math.round(h)));
